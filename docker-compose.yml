@@ -3,12 +3,12 @@ version: '3.9'
 services:
   lms-docker:
     image: postgres:15
-    container_name: lms-postgres
+    container_name: crm-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: lms-docker
+      POSTGRES_DB: crm-docker
     ports:
       - "5444:5432"
     volumes:
@@ -17,16 +17,16 @@ services:
 
   app:
     build: .
-    container_name: lms-container
+    container_name: crm-container
     restart: always
     env_file:
       - .env
     ports:
       - "5000:3000"
     depends_on:
-      - lms-docker
+      - crm-docker
     environment:
-      DATABASE_URL: postgres://postgres:1234@lms:5432/lms-docker
+      DATABASE_URL: postgres://postgres:1234@lms:5432/crm-docker
 
 volumes:
   baza_data:
