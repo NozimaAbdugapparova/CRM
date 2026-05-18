@@ -2,18 +2,18 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class EmailService{
-    constructor(private readonly mailerservice: MailerService){}
+export class EmailService {
+    constructor(private readonly mailerservice: MailerService) {}
 
-    async sendEmail(email: string, login: string, password: string){
+    async sendEmail(email: string, login: string, password: string) {
         await this.mailerservice.sendMail({
             to: email,
-            from: process.env.EMAIL,
-            subject: "Assalomu alaykum it is for test",
+            from: '"GoldCRM" <nozimaabdugapparova9@gmail.com>',
+            subject: "GoldCRM - Kirish ma'lumotlari",
             template: 'index',
-            context:{
+            context: {
                 text: `login: ${login} and password: ${password}`
             }
-        })
+        });
     }
 }

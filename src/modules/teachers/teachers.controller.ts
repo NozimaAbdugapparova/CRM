@@ -101,7 +101,7 @@ export class TeachersController {
       }),
     }),
   )
-  @Post('teacher')
+  @Post('create')
   createTeacher(
     @Body() payload: CreateTeacherDto,
     @UploadedFile() file?: Express.Multer.File,

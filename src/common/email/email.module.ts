@@ -4,35 +4,32 @@ import { join } from "path";
 import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
 import { EmailService } from "./email.service";
 
-
-console.log(process.env.EMAIL)
 @Global()
 @Module({
-    imports:[
+    imports: [
         MailerModule.forRoot({
-            transport:{
-                service: 'gmail',
+            transport: {
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false,
                 auth: {
                     user: 'nozimaabdugapparova9@gmail.com',
-                    pass: 'geks jpsd pgoh jimx'
+                    pass: 'krszninpfrujvuyw'  // yangi App Password, bo'shliqsiz
                 }
             },
-            defaults:{
-                from: '"Nozima" <nozimaabdugapparova9@gmail.com>'
+            defaults: {
+                from: '"GoldCRM" <nozimaabdugapparova9@gmail.com>'
             },
-            template:{
+            template: {
                 dir: join(process.cwd(), 'src', 'templates'),
                 adapter: new HandlebarsAdapter(),
-                options:{
+                options: {
                     strict: true
                 }
             }
         })
     ],
-    providers: [
-        EmailService
-    ],
-    exports:[ EmailService]
+    providers: [EmailService],
+    exports: [EmailService]
 })
-
-export class EmailModule{}
+export class EmailModule {}

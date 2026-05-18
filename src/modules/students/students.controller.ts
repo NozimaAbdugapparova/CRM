@@ -31,14 +31,14 @@ export class StudentsController {
     }
 
     @ApiOperation({
-            summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
-        })
-        @UseGuards(AuthGuard, RoleGuard)
-        @Roles(Role.SUPERADMIN, Role.ADMIN)
-        @Get('all/archived')
-        getAllInactiveStudents(){
-            return this.studentService.getAllInactiveStudents()
-        }
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+    })
+    @UseGuards(AuthGuard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get('all/archived')
+    getAllInactiveStudents(){
+        return this.studentService.getAllInactiveStudents()
+    }
 
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
@@ -106,7 +106,7 @@ export class StudentsController {
             cb(null, true)
         }
     }))
-    @Post('student')
+    @Post('student/add')
     createStudent(
         @Body() payload : CreateStudentDto,
         @UploadedFile() file? : Express.Multer.File
@@ -122,7 +122,7 @@ export class StudentsController {
     })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN)
-    @Patch(":id")
+    @Patch("/update/:id")
     updateStudent(
         @Param('id', ParseIntPipe) id: number,
         @Body() payload: UpdateStudentDto,
@@ -137,7 +137,7 @@ export class StudentsController {
     })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN)
-    @Delete(":id")
+    @Delete("/delete/:id")
     deleteStudent(
         @Param('id', ParseIntPipe) id: number
     ){

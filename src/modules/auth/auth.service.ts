@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
@@ -14,9 +14,37 @@ export class AuthService {
 
     ){}
 
+      async unifiedLogin(payload: LoginDto) {
+    // Admin tekshirish
+    try {
+      const result = await this.userLogin(payload);
+      return { ...result, role: 'admin' };
+    } catch {}
+ 
+    // Teacher tekshirish
+    try {
+      const result = await this.teacherLogin(payload);
+      return { ...result, role: 'teacher' };
+    } catch {}
+ 
+    // Student tekshirish
+    try {
+      const result = await this.studentLogin(payload);
+      return { ...result, role: 'student' };
+    } catch {}
+ 
+    throw new UnauthorizedException("Login yoki parol noto'g'ri.");
+  }
+
     async userLogin(payload: LoginDto){
-        const existUser = await this.prisma.user.findUnique({
-            where: {phone: payload.phone}
+        const phone = payload.phone.replace(/^\+998/, "");
+        const existUser = await this.prisma.user.findFirst({
+            where: {
+                OR:[
+                    {phone: payload.phone},
+                    {phone: phone}
+                ]
+            }
         })
 
         if(!existUser) throw new NotFoundException("Phone or password is wrong");
@@ -32,8 +60,14 @@ export class AuthService {
     }
 
     async teacherLogin(payload: LoginDto){
-        const existTeacher = await this.prisma.teacher.findUnique({
-            where: {phone: payload.phone}
+        const phone = payload.phone.replace(/^\+998/, "");
+        const existTeacher = await this.prisma.teacher.findFirst({
+            where: {
+                OR:[
+                    {phone: payload.phone},
+                    {phone: phone}
+                ]
+            }
         })
 
         if(!existTeacher) throw new NotFoundException("Phone or password is wrong");
@@ -49,8 +83,14 @@ export class AuthService {
     }
 
     async studentLogin(payload: LoginDto){
-        const existStudent = await this.prisma.student.findUnique({
-            where: {phone: payload.phone}
+        const phone = payload.phone.replace(/^\+998/, "");
+        const existStudent = await this.prisma.student.findFirst({
+            where: {
+                OR:[
+                    {phone: payload.phone},
+                    {phone: phone}
+                ]
+            }
         })
 
         if(!existStudent) throw new NotFoundException("Phone or password is wrong");

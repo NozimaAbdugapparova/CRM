@@ -28,13 +28,13 @@ export class LessonsController {
         summary: `${Role.STUDENT}`
     })
     @UseGuards(AuthGuard, RoleGuard)
-    @Roles(Role.STUDENT, Role.SUPERADMIN)
-    @Get('my/group/:groupdId')
+    @Roles(Role.STUDENT, Role.SUPERADMIN, Role.TEACHER, Role.ADMIN)
+    @Get('my/group/:groupId')
     getMyGroupLessons(
-        @Param('groupId', ParseIntPipe) groupdId : number,
+        @Param('groupId', ParseIntPipe) groupId : number,
         @Req() req: Request
     ){
-        return this.lessonService.getMyGroupLessons(groupdId, req['user'])
+        return this.lessonService.getMyGroupLessons(groupId, req['user'])
     }
 
     @ApiOperation({
@@ -42,7 +42,7 @@ export class LessonsController {
     })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.ADMIN, Role.TEACHER, Role.SUPERADMIN)
-    @Post()
+    @Post('/new')
     createLesson(
         @Body() payload : CreateLessonDto,
         @Req() req: Request

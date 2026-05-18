@@ -6,6 +6,11 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
     constructor(private readonly authService: AuthService){}
 
+    @Post('login')
+    login(@Body() payload: LoginDto) {
+        return this.authService.unifiedLogin(payload);
+    }
+
     @Post('user/login')
     userLogin(@Body() payload: LoginDto){
         return this.authService.userLogin(payload);

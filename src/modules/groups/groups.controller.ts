@@ -15,10 +15,10 @@ export class GroupsController {
     constructor(private readonly groupService: GroupsService){}
                 
     @ApiOperation({
-        summary:`${Role.SUPERADMIN}, ${Role.ADMIN}`
+        summary:`${Role.SUPERADMIN}, ${Role.ADMIN}, ${Role.TEACHER}`
     })
     @UseGuards(AuthGuard, RoleGuard)
-    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
     @Get('all')
     getAllGroups(
         @Query() search: FilterDto
@@ -26,11 +26,23 @@ export class GroupsController {
         return this.groupService.getAllGroups(search)
     }
 
-    @Get('one/students:groupId')
+    @ApiOperation({
+        summary:`${Role.SUPERADMIN}, ${Role.ADMIN}, ${Role.TEACHER}`
+    })
+    @UseGuards(AuthGuard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
+    @Get('/:id')
     getOneGroup(
-        @Param('groupId', ParseIntPipe) groupdId: number
+        @Param('id', ParseIntPipe) groupdId: number
     ){
         return this.groupService.getOneGroup(groupdId)
+    }
+
+    @Get('one/students/:groupId')
+    getOneGroupStudents(
+        @Param('groupId', ParseIntPipe) groupdId: number
+    ){
+        return this.groupService.getOneGroupStudents(groupdId)
     }
     
     
@@ -39,7 +51,7 @@ export class GroupsController {
     })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN)
-    @Post()
+    @Post('/create')
     createGroup(@Body() payload: CreateGroupDto){
         return this.groupService.createGroup(payload)
     }

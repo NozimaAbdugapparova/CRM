@@ -8,7 +8,54 @@ import { FilterDto } from './dto/filter.dto';
 export class GroupsService {
   constructor(private prisma: PrismaService) {}
 
+
   async getOneGroup(groupdId: number){
+    const existGroup = await this.prisma.group.findFirst({
+        where:{
+            id: groupdId,
+            status: Status.active
+        },
+        select:{
+            id:true,
+            name:true,
+            max_student:true,
+            start_date:true,
+            start_time:true,
+            week_day:true,
+            created_at:true,
+            courses:{
+                select:{
+                    id: true,
+                    name: true,
+                    duration_month: true
+                }
+            },
+            rooms:{
+                select:{
+                    id:true,
+                    name:true
+                }
+            },
+            teachers:{
+                select:{
+                    id:true,
+                    first_name:true,
+                    last_name:true,
+                    photo: true
+                }
+            }
+        }
+    })
+    if(!existGroup) throw new NotFoundException("group is not found with this id")
+
+    
+    return {
+        success: true,
+        data: existGroup
+    }
+  }
+
+  async getOneGroupStudents(groupdId: number){
     const existGroup = await this.prisma.group.findFirst({
         where:{
             id: groupdId,
