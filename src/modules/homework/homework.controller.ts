@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { HomeworkService } from './homework.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateHomeworkDto } from './dto/create.homework.dto';
@@ -13,65 +13,59 @@ import { Roles } from 'src/common/decorators/role';
 @ApiBearerAuth()
 @Controller('homework')
 export class HomeworkController {
-    constructor(private readonly homeworkService: HomeworkService){}
+    constructor(private readonly homeworkService: HomeworkService) {}
 
-
-    @ApiOperation({
-        summary: `${Role.ADMIN}, ${Role.TEACHER}`
-    })
+    @ApiOperation({ summary: `${Role.ADMIN}, ${Role.TEACHER}` })
+    @ApiQuery({ name: 'groupId', required: false, type: Number, description: 'Guruh ID bo\'yicha filter' })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
     @Get('all')
-    getAllHomework(){
-        return this.homeworkService.getAllHomework()
+    getAllHomework(@Query('groupId') groupId?: string) {
+        const gId = groupId ? Number(groupId) : undefined;
+        return this.homeworkService.getAllHomework(gId);
     }
 
-    @ApiOperation({
-        summary: `${Role.STUDENT}`
-    })
+    @ApiOperation({ summary: `${Role.STUDENT}` })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.STUDENT)
     @Get('own/:lessonId')
     getOwnHomework(
-        @Param('lessonId', ParseIntPipe) lessonId : number,
+        @Param('lessonId', ParseIntPipe) lessonId: number,
         @Req() req: Request
-    ){
-        return this.homeworkService.getOwnHomework(lessonId, req['user'])
+    ) {
+        return this.homeworkService.getOwnHomework(lessonId, req['user']);
     }
 
-
-    @ApiOperation({
-        summary: `${Role.ADMIN}, ${Role.TEACHER}`
-    })
+    @ApiOperation({ summary: `${Role.ADMIN}, ${Role.TEACHER}` })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
     @ApiConsumes('multipart/form-data')
     @ApiBody({
-        schema:{
-            type: "object",
+        schema: {
+            type: 'object',
             properties: {
-                lesson_id: {type: 'number'},
-                group_id: {type: 'number'},
-                file: {type: 'string', format: 'binary'},
-                title: {type: 'string'}
+                lesson_id: { type: 'number' },
+                group_id:  { type: 'number' },
+                file:      { type: 'string', format: 'binary' },
+                title:     { type: 'string' }
             }
         }
     })
-    @UseInterceptors(FileInterceptor("file", {
+    @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './src/uploads/files',
-            filename: (req, file, cb) =>{
-                const filename = Date.now() + '.' +file.mimetype.split("/")[1]
-                cb(null, filename)
+            filename: (req, file, cb) => {
+                const filename = Date.now() + '.' + file.mimetype.split('/')[1];
+                cb(null, filename);
             }
         })
     }))
-    @Post()
+    @Post('/new')
     createHomework(
-        @Body() payload : CreateHomeworkDto,
+        @Body() payload: CreateHomeworkDto,
         @Req() req: Request,
-        @UploadedFile() file? : Express.Multer.File
-    ){
-        return this.homeworkService.createHomework(payload, req['user'], file?.filename)
+        @UploadedFile() file?: Express.Multer.File
+    ) {
+        return this.homeworkService.createHomework(payload, req['user'], file?.filename);
     }
 }

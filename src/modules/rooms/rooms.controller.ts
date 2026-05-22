@@ -42,7 +42,7 @@ export class RoomsController {
     })
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN)
-    @Post()
+    @Post('add/new')
     createRoom(@Body() payload: CreateRoomDto){
         return this.roomService.createRoom(payload)
     }
