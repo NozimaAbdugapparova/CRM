@@ -116,7 +116,7 @@ export class TeachersController {
   })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
-  @Patch(':id')
+  @Patch('update/:id')
   updateStudent(
     @Param('id', ParseIntPipe) id: number,
     @Body() payload: updateTeacherDto,
@@ -131,7 +131,7 @@ export class TeachersController {
   })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
-  @Delete(':id')
+  @Delete('delete/:id')
   deleteStudent(@Param('id', ParseIntPipe) id: number) {
     return this.teacherService.deleteTeacher(id);
   }
