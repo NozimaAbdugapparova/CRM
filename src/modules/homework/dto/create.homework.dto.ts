@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
-import { IsNumber, IsString } from "class-validator"
+import { IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CreateHomeworkDto {
     @ApiProperty()
@@ -16,4 +16,9 @@ export class CreateHomeworkDto {
     @ApiProperty()
     @IsString()
     title: string
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    description?: string
 }

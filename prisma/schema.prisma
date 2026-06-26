@@ -207,6 +207,7 @@ model Homework {
     lesson_id  Int
     group_id   Int
     title      String
+    description String?
     file       String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

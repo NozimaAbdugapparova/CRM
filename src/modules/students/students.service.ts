@@ -98,7 +98,12 @@ export class StudentsService {
             groups:{
                 select:{
                     id: true,
-                    name: true
+                    name: true,
+                    courses: true,
+                    rooms: true,
+                    teachers: true,
+                    start_date: true,
+                    status: true
                 }
             }
         }

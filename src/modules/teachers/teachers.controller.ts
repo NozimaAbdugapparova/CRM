@@ -116,6 +116,32 @@ export class TeachersController {
   })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        first_name: { type: 'string' },
+        last_name: { type: 'string' },
+        email: { type: 'string' },
+        password: { type: 'string' },
+        phone: { type: 'string' },
+        photo: { type: 'string', format: 'binary' },
+        address: { type: 'string' },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: diskStorage({
+        destination: './src/uploads',
+        filename: (req, file, cb) => {
+          const filename = Date.now() + '.' + file.mimetype.split('/')[1];
+          cb(null, filename);
+        },
+      }),
+    }),
+  )
   @Patch('update/:id')
   updateStudent(
     @Param('id', ParseIntPipe) id: number,

@@ -98,7 +98,7 @@ export class HomeworkService {
         filename?: string
     ) {
         const existLesson = await this.prisma.lesson.findFirst({
-            where: { id: payload.lesson_id },
+            where: { id: +payload.lesson_id },
             select: {
                 groups: { select: { teacher_id: true } }
             }
@@ -116,13 +116,54 @@ export class HomeworkService {
 
         await this.prisma.homework.create({
             data: {
-                ...payload,
-                file:       filename,
-                teacher_id: currentUser.role === Role.TEACHER ? currentUser.id : null,
-                user_id:    currentUser.role !== Role.TEACHER ? currentUser.id : null,
+                lesson_id:   +payload.lesson_id,
+                group_id:    +payload.group_id,
+                title:       payload.title,
+                description: payload.description,
+                file:        filename,
+                teacher_id:  currentUser.role === Role.TEACHER ? currentUser.id : null,
+                user_id:     currentUser.role !== Role.TEACHER ? currentUser.id : null,
             }
         });
 
         return { success: true, message: 'Homework is sent' };
+    }
+
+    async updateHomework(
+        id: number,
+        payload: Partial<CreateHomeworkDto>,
+        currentUser: { id: number; role: Role },
+        filename?: string
+    ) {
+        const homework = await this.prisma.homework.findUnique({ where: { id } });
+        if (!homework) throw new BadRequestException('Homework not found');
+
+        if (currentUser.role === Role.TEACHER && homework.teacher_id !== currentUser.id) {
+            throw new ForbiddenException('You can only update your own homework');
+        }
+
+        await this.prisma.homework.update({
+            where: { id },
+            data: {
+                title:       payload.title       ?? homework.title,
+                description: payload.description ?? homework.description,
+                lesson_id:   payload.lesson_id   ? +payload.lesson_id : homework.lesson_id,
+                file:        filename            ?? homework.file,
+            }
+        });
+
+        return { success: true, message: 'Homework updated' };
+    }
+
+    async deleteHomework(id: number, currentUser: { id: number; role: Role }) {
+        const homework = await this.prisma.homework.findUnique({ where: { id } });
+        if (!homework) throw new BadRequestException('Homework not found');
+
+        if (currentUser.role === Role.TEACHER && homework.teacher_id !== currentUser.id) {
+            throw new ForbiddenException('You can only delete your own homework');
+        }
+
+        await this.prisma.homework.delete({ where: { id } });
+        return { success: true, message: 'Homework deleted' };
     }
 }

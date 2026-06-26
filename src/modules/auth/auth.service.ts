@@ -55,7 +55,13 @@ export class AuthService {
         return{
             succes: true,
             message: "You are logged in",
-            token: this.jwtService.sign({id: existUser.id, email: existUser.email, role: existUser.role })
+            token: this.jwtService.sign({
+                id: existUser.id,
+                email: existUser.email,
+                role: existUser.role,
+                first_name: existUser.first_name,
+                last_name: existUser.last_name
+            })
         }
     }
 
@@ -78,7 +84,13 @@ export class AuthService {
         return{
             succes: true,
             message: "You are logged in",
-            token: this.jwtService.sign({id: existTeacher.id, email: existTeacher.email, role: Role.TEACHER })
+            token: this.jwtService.sign({
+                id: existTeacher.id,
+                email: existTeacher.email,
+                role: Role.TEACHER,
+                first_name: existTeacher.first_name,
+                last_name: existTeacher.last_name
+            })
         }
     }
 
@@ -101,7 +113,13 @@ export class AuthService {
         return{
             succes: true,
             message: "You are logged in",
-            token: this.jwtService.sign({id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
+            token: this.jwtService.sign({
+                id: existStudent.id,
+                email: existStudent.email,
+                role: Role.STUDENT,
+                first_name: existStudent.first_name,
+                last_name: existStudent.last_name
+            })
         }
     }
 }

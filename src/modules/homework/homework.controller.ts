@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { HomeworkService } from './homework.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -40,17 +40,6 @@ export class HomeworkController {
     @UseGuards(AuthGuard, RoleGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
     @ApiConsumes('multipart/form-data')
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                lesson_id: { type: 'number' },
-                group_id:  { type: 'number' },
-                file:      { type: 'string', format: 'binary' },
-                title:     { type: 'string' }
-            }
-        }
-    })
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './src/uploads/files',
@@ -67,5 +56,38 @@ export class HomeworkController {
         @UploadedFile() file?: Express.Multer.File
     ) {
         return this.homeworkService.createHomework(payload, req['user'], file?.filename);
+    }
+
+    @ApiOperation({ summary: 'Update homework' })
+    @UseGuards(AuthGuard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './src/uploads/files',
+            filename: (req, file, cb) => {
+                const filename = Date.now() + '.' + file.mimetype.split('/')[1];
+                cb(null, filename);
+            }
+        })
+    }))
+    @Put('update/:id')
+    updateHomework(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() payload: Partial<CreateHomeworkDto>,
+        @Req() req: Request,
+        @UploadedFile() file?: Express.Multer.File
+    ) {
+        return this.homeworkService.updateHomework(id, payload, req['user'], file?.filename);
+    }
+
+    @ApiOperation({ summary: 'Delete homework' })
+    @UseGuards(AuthGuard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
+    @Delete('delete/:id')
+    deleteHomework(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: Request
+    ) {
+        return this.homeworkService.deleteHomework(id, req['user']);
     }
 }

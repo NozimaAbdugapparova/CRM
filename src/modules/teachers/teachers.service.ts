@@ -57,7 +57,12 @@ export class TeachersService {
 
   async getAllgroups(id:number){
       const groups = await this.prisma.group.findMany({
-          where:{teacher_id: id}
+          where:{teacher_id: id},
+          include:{
+              courses: true,
+              rooms: true,
+              studentGroups: true
+          }
       })
 
       if(!groups.length) throw new NotFoundException("This teacher has not any groups yet")
@@ -124,6 +129,11 @@ export class TeachersService {
     payload: updateTeacherDto,
     photo?: Express.Multer.File,
   ) {
+    // Extra safety: validate id
+    if (!id || isNaN(id)) {
+      throw new NotFoundException('Invalid teacher ID');
+    }
+
     const teacher = await this.prisma.teacher.findFirst({
       where: { id },
     });
@@ -132,6 +142,10 @@ export class TeachersService {
       throw new NotFoundException('Teacher not found by this id');
     }
 
+    // Extra safety: ensure teacher has required fields
+    if (!teacher.first_name) {
+      throw new NotFoundException('Teacher data is corrupted');
+    }
 
     await this.prisma.teacher.update({
       where: { id },
